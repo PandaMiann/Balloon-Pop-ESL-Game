@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Balloon Pop</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--card:#f7f7f7;--line:#d9d9d9;--text:#444;--head:#222;--blue:#1cb0f6;--blue-s:#1899d6;--red:#ff4b4b;--red-s:#ea2b2b;--green:#58cc02;--green-s:#58a700;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:#fff}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;background:#fff;color:var(--text);padding:24px 16px;overflow-x:hidden}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:20px}
+h1{font-size:2.6rem;font-weight:900;color:var(--head);margin:0;text-align:center}
+h2{margin:0;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:var(--head)}
+.card{width:100%;background:var(--card);border:2px solid var(--line);border-radius:24px;padding:24px}
+.btn{border:none;border-radius:16px;font:800 1rem 'Nunito',sans-serif;text-transform:uppercase;letter-spacing:1px;padding:12px 24px;color:#fff;cursor:pointer;position:relative;top:0;transition:all .1s}
+.btn:active{top:4px}
+.btn:disabled{opacity:.45;cursor:default}
+.green{background:var(--green);box-shadow:0 4px 0 var(--green-s)}.green:active{box-shadow:none}
+.blue{background:var(--blue);box-shadow:0 4px 0 var(--blue-s)}.blue:active{box-shadow:none}
+.redb{background:var(--red);box-shadow:0 4px 0 var(--red-s)}.redb:active{box-shadow:none}
+.ghost{background:#fff;color:var(--text);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:center}
+
+/* Nastavení v menu */
+.menu-setting {
+    width: 100%; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: #fff; 
+    padding: 12px 20px; 
+    border-radius: 18px; 
+    border: 2px solid var(--line);
+    margin-bottom: 10px;
+}
+.menu-setting label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin: 0;
+}
+
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    width: 100px;
+}
+.custom-select-trigger {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 8px 10px;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.custom-select-trigger::after {
+    content: '▾';
+    font-size: 1rem;
+    margin-left: 4px;
+    color: #666;
+}
+.custom-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    max-height: 180px; 
+    overflow-y: auto;
+    z-index: 99;
+    display: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.custom-select-wrapper.open .custom-options {
+    display: block;
+}
+.custom-option {
+    padding: 10px 8px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text);
+    cursor: pointer;
+    text-align: center;
+}
+.custom-option:hover { background: #f0f0f0; }
+.custom-option.selected { background: #eaf7fe; color: var(--blue); }
+
+input[type=file]{font:700 .95rem 'Nunito',sans-serif;color:var(--text)}
+
+.dz {
+    width: 100%; border: 3px dashed var(--green); background: #f1fbe6; border-radius: 20px;
+    padding: 18px; display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center;
+    cursor: pointer; transition: background 0.15s ease, transform 0.1s ease;
+}
+.dz:hover { background: #e5f7d2; }
+.dz.over { background: #dff5c4; transform: scale(1.01); }
+
+.tb{width:100%}
+textarea{width:100%;min-height:160px;border:2px solid var(--line);background:#fff;border-radius:16px;padding:12px;font:700 1rem 'Nunito',sans-serif;color:var(--text);resize:vertical}
+textarea:focus{outline:none;border-color:var(--blue)}
+.small{font-size:.9rem;color:#666;margin:0;font-family:'Nunito',sans-serif;}
+.status{font-weight:800;text-align:center;font-family:'Nunito',sans-serif;color:var(--text)}.ok{color:var(--green-s)}.err{color:var(--red-s)}
+.hidden{display:none!important}
+
+/* Control panel & Timer */
+.control-panel {
+    display: flex; flex-direction: column; align-items: center; gap: 16px;
+    background: #fff; border: 2px solid var(--line); border-radius: 20px;
+    padding: 20px; width: 100%; max-width: 320px; margin: 0 auto;
+}
+.msg{font-weight:800;font-size:1.1rem;color:var(--text);min-height:1.4em;text-align:center}
+.dice{width:80px;height:80px;border:2px solid var(--line);background:#fff;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:2.8rem;font-weight:900;color:var(--head)}
+.dice.bounce{animation:bounce .4s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes bounce{0%{transform:scale(.8)}50%{transform:scale(1.2) rotate(10deg)}100%{transform:scale(1)}}
+
+/* Timer bar */
+#timer-container {
+    width: 100%; background: #eee; border-radius: 10px; height: 12px; overflow: hidden; margin-bottom: 10px; display: none;
+}
+#timer-bar {
+    width: 100%; height: 100%; background: var(--green); transition: width 1s linear, background-color 0.5s;
+}
+
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
+@media (max-width:620px){.teams{grid-template-columns:1fr}}
+.team{background:#fff;border:3px solid var(--line);border-radius:24px;padding:18px;display:flex;flex-direction:column;align-items:center;transition:box-shadow .2s,border-color .2s;position:relative;}
+.team.selectable{border-color:currentColor;cursor:pointer;animation:glow 1.1s ease-in-out infinite}
+.team.chosen{border-color:currentColor;box-shadow:0 0 0 4px currentColor,0 0 36px 10px currentColor}
+@keyframes glow{0%,100%{box-shadow:0 0 8px 2px currentColor}50%{box-shadow:0 0 34px 10px currentColor}}
+.team h2{margin-bottom:14px;font-size:1.5rem}
+.balloons{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;width:100%;min-height:100px}
+.balloon{width:40px;height:50px;border-radius:50%;position:relative;transition:transform .25s,opacity .25s;margin-bottom:8px;cursor:pointer}
+.balloon::before{content:'';position:absolute;top:7px;left:8px;width:11px;height:11px;background:rgba(255,255,255,.55);border-radius:50%}
+.balloon::after{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid currentColor}
+.balloon.b{background:var(--blue);color:var(--blue)}.balloon.r{background:var(--red);color:var(--red)}
+.balloon:hover{transform:scale(1.15)}
+.balloon.popped{transform:scale(1.7);opacity:0;pointer-events:none}
+
+/* Modals & Toasts */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+.box{background:#fff;border-radius:28px;padding:28px;max-width:600px;width:100%;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}
+.q{font-size:2rem;font-weight:900;color:var(--head)}
+.a{font-size:1.7rem;font-weight:800;color:var(--green-s);padding:14px;border-radius:16px;border:2px dashed var(--green);width:100%}
+.tag{font-weight:900;text-transform:uppercase;letter-spacing:1px}
+
+/* Toast styling */
+.toast-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+.toast-overlay.active { opacity: 1; pointer-events: auto; }
+.toast-content {
+    background: #fff; width: 100%; max-width: 550px;
+    border-radius: 28px; padding: 28px;
+    transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column; gap: 16px; text-align: left;
+}
+.toast-overlay.active .toast-content { transform: scale(1) translateY(0); }
+.toast-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.toast-header h3 { margin: 0; font-size: 1.5rem; font-weight: 900; color: var(--head); }
+.close-toast { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; padding: 0; line-height: 1; }
+.close-toast:hover { color: var(--head); }
+
+.preset-item {
+    padding: 12px 16px; border: 2px solid var(--line); border-radius: 16px; width: 100%;
+    cursor: pointer; font-weight: 800; display: flex; justify-content: space-between; align-items: center;
+    transition: all 0.15s; background: #fff; color: var(--text);
+}
+.preset-item:hover { border-color: var(--blue); background: #f7f9fa; }
+
+/* Malý notifikační toast */
+#notification-toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--green); color: white; padding: 12px 24px; border-radius: 16px;
+    font-weight: 800; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    z-index: 100; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: none;
+}
+#notification-toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🎈 Balloon Pop</h1>
+<button id="mute" class="btn ghost" style="padding:6px 16px">🔊 Sound on</button>
+
+<!-- CLEAN MAIN MENU -->
+<section id="menu" class="card" style="display:flex;flex-direction:column;gap:14px;align-items:center; max-width: 480px;">
+  <div class="menu-setting">
+    <label for="n">Balloons per team:</label>
+    <div class="custom-select-wrapper" id="customSelect">
+      <div class="custom-select-trigger" id="selectTrigger">10</div>
+      <div class="custom-options" id="selectOptions"></div>
+      <input type="hidden" id="n" value="10">
+    </div>
+  </div>
+
+  <div class="menu-setting">
+    <label for="timerSet">Answer timer:</label>
+    <div class="custom-select-wrapper" id="customTimerSelect">
+      <div class="custom-select-trigger" id="timerTrigger">20s</div>
+      <div class="custom-options" id="timerOptions"></div>
+      <input type="hidden" id="timerSet" value="20">
+    </div>
+  </div>
+  
+  <div style="width:100%; display:flex; flex-direction:column; gap:10px;">
+    <button id="start" class="btn green" style="width:100%; padding: 14px; font-size: 1.1rem;" disabled>▶ Start Game</button>
+    <button id="openRules" class="btn ghost" style="width:100%; color: var(--head); border-color: var(--line);">📜 Rules</button>
+    <button id="openCsv" class="btn ghost" style="width:100%; color: var(--blue); border-color: var(--blue);">📄 Import CSV</button>
+    <button id="openType" class="btn ghost" style="width:100%; color: var(--green-s); border-color: var(--green-s);">✏️ Type Questions</button>
+    <button id="openPresets" class="btn blue" style="width:100%;">📚 Presets</button>
+  </div>
+  
+  <div id="csvStatusContainer" style="display:none; width:100%; flex-direction:column; gap:8px; align-items:center;">
+    <div id="csvStatus" class="status"></div>
+    <button id="clearCsvBtn" class="btn redb" style="padding: 6px 14px; font-size: 0.85rem;">🗑 Clear Questions</button>
+  </div>
+</section>
+
+<!-- GAME SCREEN -->
+<section id="game" class="hidden" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:20px">
+  
+  <div class="control-panel">
+    <div id="dice" class="dice">?</div>
+    <button id="roll" class="btn blue" style="width: 100%;">🎲 Roll the dice</button>
+  </div>
+  
+  <div id="msg" class="msg"></div>
+
+  <div class="teams">
+    <div id="tBlue" class="team" style="color:var(--blue)">
+      <h2>Blue team</h2><div id="bBlue" class="balloons"></div>
+    </div>
+    <div id="tRed" class="team" style="color:var(--red)">
+      <h2>Red team</h2><div id="bRed" class="balloons"></div>
+    </div>
+  </div>
+  <div class="row">
+    <button id="again" class="btn green">🔄 Restart</button>
+    <button id="toMenu" class="btn ghost">🏠 Menu</button>
+  </div>
+</section>
+</div>
+
+<!-- TOAST: RULES -->
+<div id="toastRules" class="toast-overlay">
+  <div class="toast-content">
+    <div class="toast-header">
+      <h3>📜 Game Rules</h3>
+      <button class="close-toast" onclick="closeToasts()">✕</button>
+    </div>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.6; font-weight: 700; color: var(--text); font-family:'Nunito',sans-serif;">
+      <li><b>Turn & Dice:</b> Teams take turns clicking the dice button to see how many opponent balloons they can pop.</li>
+      <li><b>English Question:</b> After rolling, a question appears. The team must answer it correctly before the timer runs out (if enabled).</li>
+      <li><b>Teacher Verification:</b> The teacher clicks <i>Reveal answer</i> and then <i>Correct</i> (the team rolls the dice again to pop opponent balloons) or <i>Incorrect</i> (ends the turn immediately).</li>
+      <li><b>Winning:</b> The first team to pop all opponent balloons wins the game!</li>
+    </ul>
+    <button class="btn blue" onclick="closeToasts()" style="width:100%; margin-top: 5px;">Got it!</button>
+  </div>
+</div>
+
+<!-- TOAST: PRESETS -->
+<div id="toastPresets" class="toast-overlay">
+  <div class="toast-content">
+    <div class="toast-header">
+      <h3>📚 Preset Question Packs</h3>
+      <button class="close-toast" onclick="closeToasts()">✕</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+      <div class="preset-item" onclick="loadPreset('comparatives')">
+        <span>Comparatives & Superlatives</span>
+        <span style="font-size:0.85rem; color:#777;">40 questions</span>
+      </div>
+      <div class="preset-item" onclick="loadPreset('irregular')">
+        <span>Irregular Verbs (Past tense)</span>
+        <span style="font-size:0.85rem; color:#777;">20 questions</span>
+      </div>
+    </div>
+    <button class="btn ghost" onclick="closeToasts()" style="width:100%; margin-top: 5px;">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST: IMPORT CSV -->
+<div id="toastCsv" class="toast-overlay">
+  <div class="toast-content">
+    <div class="toast-header">
+      <h3>📄 Import CSV File</h3>
+      <button class="close-toast" onclick="closeToasts()">✕</button>
+    </div>
+    <div id="dz" class="dz">
+      <label for="csv" style="margin:0; cursor:pointer; color:var(--text); pointer-events: none;">📁 Click to upload or drag &amp; drop CSV</label>
+      <input type="file" id="csv" accept=".csv,.txt,text/csv" style="display:none">
+      <p class="small">Format: question,answer</p>
+    </div>
+    <div id="toastCsvStatus" class="status" style="min-height: 1.2em;"></div>
+    <button class="btn green" onclick="closeToasts()" style="width:100%; margin-top: 5px;">Done</button>
+  </div>
+</div>
+
+<!-- TOAST: TYPE QUESTIONS -->
+<div id="toastType" class="toast-overlay">
+  <div class="toast-content">
+    <div class="toast-header">
+      <h3>✏️ Type Questions</h3>
+      <button class="close-toast" onclick="closeToasts()">✕</button>
+    </div>
+    <div class="tb">
+      <textarea id="qs" spellcheck="false" placeholder="One per line: question,answer&#10;What is the capital of the UK?,London"></textarea>
+      <p class="small" style="margin-top:6px">Format: <b>question,answer</b></p>
+      <label style="font-weight:700;margin:8px 0 0; font-size: 0.95rem; font-family:'Nunito',sans-serif; color:var(--text);"><input type="checkbox" id="header"> First row is a header (skip it)</label>
+    </div>
+    <button class="btn green" onclick="saveTypedQuestions()" style="width:100%; margin-top: 5px;">Save Questions</button>
+  </div>
+</div>
+
+<!-- QUESTION MODAL -->
+<div id="qModal" class="modal hidden">
+  <div class="box" style="max-width: 650px;">
+    <div id="qTeam" class="tag"></div>
+    
+    <div id="timer-container">
+      <div id="timer-bar"></div>
+    </div>
+
+    <div id="qText" class="q"></div>
+    <div id="qAns" class="a hidden"></div>
+    <button id="reveal" class="btn blue">👁 Reveal answer</button>
+    <div id="verdict" class="row hidden" style="width: 100%;">
+      <button id="ok" class="btn green" style="flex:1;">✔ Correct</button>
+      <button id="ko" class="btn redb" style="flex:1;">✘ Wrong</button>
+    </div>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div id="wModal" class="modal hidden">
+  <div class="box">
+    <div style="font-size:4rem">🏆</div>
+    <div id="wText" class="q"></div>
+    <div class="row" style="gap: 10px;">
+      <button id="wAgain" class="btn green">Play again</button>
+      <button id="openStats" class="btn blue">📊 Stats</button>
+      <button id="wMenu" class="btn ghost">🏠 Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div id="statsModal" class="modal hidden">
+  <div class="box">
+    <h3>📊 Game Statistics</h3>
+    <div id="statsContent" style="width:100%; text-align:left; font-weight:700; display:flex; flex-direction:column; gap:10px; font-size: 1.1rem;">
+    </div>
+    <button class="btn blue" onclick="$('statsModal').classList.add('hidden')" style="width:100%;">Close</button>
+  </div>
+</div>
+
+<!-- MALÝ NOTIFIKAČNÍ TOAST -->
+<div id="notification-toast">Action completed successfully!</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let stats = {
+  roundsPlayed: 0,
+  blueCorrect: 0,
+  blueWrong: 0,
+  redCorrect: 0,
+  redWrong: 0,
+  winner: ''
+};
+
+const presetPacks = {
+  comparatives: `My car is ___(fast) than yours.,faster
+This is the ___(bad) film I have ever seen.,worst
+He is as tall ___(prep) his brother.,as
+Chemistry is ___(difficult) than physics.,more difficult
+Mount Everest is the ___(high) mountain in the world.,highest
+She speaks English ___(fluent) than me.,more fluently
+Today is not as hot ___(prep) yesterday.,as
+Who is the ___(smart) student in the class?,smartest
+My house is ___(big) than yours.,bigger
+This exercise is ___(easy) than the previous one.,easier
+English is ___(easy) language to learn, isn't it?,the easiest
+He runs ___(fast) of all runners.,the fastest
+Gold is ___(expensive) than silver.,more expensive
+Physics is ___(boring) subject for me.,the most boring
+Cats are not as noisy ___(prep) dogs.,as
+She is ___(good) singer in our choir.,the best
+Winter is ___(cold) season of the year.,the coldest
+Your phone is ___(modern) than mine.,more modern
+Travelling by train is ___(comfortable) than by bus.,more comfortable
+He is ___(short) boy in our team.,the shortest
+A plane is ___(fast) than a train.,faster
+Who is the ___(rich) person in the world?,richest
+This test was ___(difficult) than the last one.,more difficult
+Lions are ___(dangerous) than domestic cats.,more dangerous
+She is ___(happy) person I know.,the happiest
+My laptop is ___(new) than yours.,newer
+He is ___(good) at math than me.,better
+This box is as ___(heavy) as the other one.,heavy
+July is usually ___(hot) month of the year.,the hottest
+Travelling by plane is ___(safe) than driving a car.,safer
+Your room is not as ___(clean) as mine.,clean
+He bought ___(expensive) watch in the shop.,the most expensive
+Spanish is ___(easy) to learn than Chinese.,easier
+She is ___(tall) than her older brother.,taller
+This is ___(bad) restaurant in the town.,the worst
+Iron is ___(heavy) than wood.,heavier
+Science fiction is ___(interesting) than history for me.,more interesting
+He drives ___(careful) than his friend.,more carefully
+Who is ___(old), your mother or your father?,older
+Mount Everest is ___(high) than Mont Blanc.,higher`,
+
+  irregular: `Past tense of 'go'?,went
+Past tense of 'eat'?,ate
+Past tense of 'see'?,saw
+Past tense of 'buy'?,bought
+Past tense of 'make'?,made
+Past tense of 'write'?,wrote
+Past tense of 'speak'?,spoke
+Past tense of 'take'?,took
+Past tense of 'come'?,came
+Past tense of 'run'?,ran
+Past tense of 'read'?,read
+Past tense of 'sit'?,sat
+Past tense of 'swim'?,swam
+Past tense of 'sing'?,sang
+Past tense of 'fly'?,flew
+Past tense of 'draw'?,drew
+Past tense of 'begin'?,began
+Past tense of 'drink'?,drank
+Past tense of 'drive'?,drove
+Past tense of 'sleep'?,slept`
+};
+
+function showNotification(text) {
+  const nt = $('notification-toast');
+  nt.textContent = text;
+  nt.classList.add('show');
+  setTimeout(() => {
+    nt.classList.remove('show');
+  }, 2500);
+}
+
+function loadPreset(key) {
+  $('qs').value = presetPacks[key];
+  loadQuestions();
+  closeToasts();
+  showNotification('Preset successfully loaded!');
+}
+
+function saveTypedQuestions() {
+  loadQuestions();
+  closeToasts();
+  if(questions.length > 0) {
+    showNotification('Questions successfully saved!');
+  }
+}
+
+// Generování nabídky pro balónky (5 až 35)
+const optionsContainer = $('selectOptions');
+const selectTrigger = $('selectTrigger');
+const customSelect = $('customSelect');
+const hiddenInput = $('n');
+
+for (let i = 5; i <= 35; i++) {
+    const opt = document.createElement('div');
+    opt.className = 'custom-option' + (i === 10 ? ' selected' : '');
+    opt.textContent = i;
+    opt.dataset.value = i;
+    opt.onclick = (e) => {
+        e.stopPropagation();
+        selectTrigger.textContent = i;
+        hiddenInput.value = i;
+        document.querySelectorAll('#selectOptions .custom-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        customSelect.classList.remove('open');
+    };
+    optionsContainer.appendChild(opt);
+}
+selectTrigger.onclick = (e) => { e.stopPropagation(); customSelect.classList.toggle('open'); document.getElementById('customTimerSelect').classList.remove('open'); };
+
+// Generování nabídky pro časovač
+const timerOptionsContainer = $('timerOptions');
+const timerTrigger = $('timerTrigger');
+const customTimerSelect = $('customTimerSelect');
+const hiddenTimerInput = $('timerSet');
+
+const timerValues = [
+    { label: 'Off', val: 0 },
+    { label: '10s', val: 10 },
+    { label: '20s', val: 20 },
+    { label: '30s', val: 30 },
+    { label: '45s', val: 45 },
+    { label: '60s', val: 60 }
+];
+
+timerValues.forEach(item => {
+    const opt = document.createElement('div');
+    opt.className = 'custom-option' + (item.val === 20 ? ' selected' : '');
+    opt.textContent = item.label;
+    opt.dataset.value = item.val;
+    opt.onclick = (e) => {
+        e.stopPropagation();
+        timerTrigger.textContent = item.label;
+        hiddenTimerInput.value = item.val;
+        document.querySelectorAll('#timerOptions .custom-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        customTimerSelect.classList.remove('open');
+    };
+    timerOptionsContainer.appendChild(opt);
+});
+
+timerTrigger.onclick = (e) => { e.stopPropagation(); customTimerSelect.classList.toggle('open'); customSelect.classList.remove('open'); };
+
+window.onclick = () => {
+    customSelect.classList.remove('open');
+    customTimerSelect.classList.remove('open');
+};
+
+// --- Toast Controls ---
+function openToast(id) {
+    document.querySelectorAll('.toast-overlay').forEach(t => t.classList.remove('active'));
+    $(id).classList.add('active');
+}
+function closeToasts() {
+    document.querySelectorAll('.toast-overlay').forEach(t => t.classList.remove('active'));
+}
+
+$('openRules').onclick = () => openToast('toastRules');$('openPresets').onclick = () => openToast('toastPresets');
+$('openCsv').onclick = () => openToast('toastCsv');$('openType').onclick = () => openToast('toastType');
+
+document.querySelectorAll('.toast-overlay').forEach(overlay => {
+    overlay.onclick = (e) => { if(e.target === overlay) closeToasts(); }
+});
+
+$('dz').onclick = () =>$('csv').click();
+
+// ---------- Sound (synthesized) ----------
+let actx = null, muted = false;
+function ac(){
+  if (!actx){ try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+  if (actx && actx.state === 'suspended') actx.resume();
+  return actx;
+}
+function tone(f, d = .1, type = 'sine', v = .15, t0 = 0, f2){
+  const a = ac(); if (!a || muted) return;
+  const t = a.currentTime + t0, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.001, t + d);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d);
+}
+function noise(d = .15, v = .4){
+  const a = ac(); if (!a || muted) return;
+  const buf = a.createBuffer(1, a.sampleRate * d, a.sampleRate), data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  const s = a.createBufferSource(), g = a.createGain(), f = a.createBiquadFilter();
+  f.type = 'highpass'; f.frequency.value = 900; g.gain.value = v;
+  s.buffer = buf; s.connect(f); f.connect(g); g.connect(a.destination); s.start();
+}
+const sfx = {
+  click:  () => tone(660, .07, 'square', .05, 0, 900),
+  tick:   () => tone(250 + Math.random() * 350, .05, 'triangle', .13),
+  land:   () => { tone(523, .15, 'sine', .18); tone(784, .3, 'sine', .18, .1); },
+  pop:    () => { noise(.12, .6); tone(500, .1, 'sine', .2, 0, 90); },
+  reveal: () => { tone(440, .1, 'sine', .15); tone(660, .15, 'sine', .15, .08); },
+  correct:() => [523, 659, 784, 1047].forEach((f, i) => tone(f, .18, 'triangle', .18, i * .09)),
+  wrong:  () => { tone(220, .35, 'sawtooth', .13, 0, 90); tone(165, .4, 'sawtooth', .13, .15, 70); },
+  win:    () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, .25, 'triangle', .2, i * .13)),
+  splash: () => { noise(.5, .35); tone(300, .5, 'sine', .15, 0, 60); },
+  timeout:() => { tone(150, .4, 'sawtooth', .2, 0, 80); }
+};
+document.addEventListener('click', e => { if (e.target.closest('.btn')) sfx.click(); });
+$('mute').onclick = () => { muted = !muted; $('mute').textContent = muted ? '🔇 Sound off' : '🔊 Sound on'; };
+
+// ---------- Questions ----------
+function parseCSV(text){
+  text = text.replace(/^\uFEFF/, '');
+  const first = text.split(/\r?\n/)[0] || '';
+  const d = first.includes('\t') && !first.includes(',') ? '\t' : (first.includes(',') ? ',' : (first.includes(';') ? ';' : ','));
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"'){ if (text[i+1] === '"'){ cur += '"'; i++; } else q = false; }
+      else cur += c;
+    } else if (c === '"') q = true;
+    else if (c === d){ row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r'){
+      if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cur); rows.push(row); row = []; cur = '';
+    } else cur += c;
+  }
+  if (cur || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+let questions = [], deck = [];
+
+function loadQuestions(){
+  const raw = $('qs').value;
+  let rows = parseCSV(raw);
+  if ($('header').checked) rows = rows.slice(1);
+  questions = rows.filter(r => r[0] && r[0].trim()).map(r => ({q:r[0].trim(), a:r.slice(1).join(',').trim()}));
+  
+  const st = $('csvStatus');
+  const toastSt = $('toastCsvStatus');
+  const container = $('csvStatusContainer');
+  
+  if (questions.length){
+    const msg = `✔ Questions loaded: ${questions.length}`;
+    st.textContent = msg; st.className = 'status ok';
+    toastSt.textContent = msg; toastSt.className = 'status ok';
+    container.style.display = 'flex';
+  } else {
+    const msg = raw.trim() ? '✖ No valid questions found.' : '';
+    st.textContent = msg; st.className = 'status err';
+    toastSt.textContent = msg; toastSt.className = 'status err';
+    if (!raw.trim()) container.style.display = 'none';
+  }
+  $('start').disabled = !questions.length;
+}
+
+$('clearCsvBtn').onclick = () => {
+  $('qs').value = '';$('csv').value = '';
+  questions = [];
+  $('csvStatusContainer').style.display = 'none';$('start').disabled = true;
+  showNotification('Questions cleared!');
+};
+
+function readFile(f){
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { 
+    $('qs').value = r.result.replace(/^\uFEFF/, ''); 
+    loadQuestions(); 
+    showNotification('CSV successfully loaded!');
+  };
+  r.readAsText(f, 'UTF-8');
+}
+$('csv').addEventListener('change', e => readFile(e.target.files[0]));
+$('qs').addEventListener('input', loadQuestions);$('header').addEventListener('change', loadQuestions);
+const dz = $('dz');
+['dragover','dragenter'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('over'); }));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('over');
+  readFile(e.dataTransfer.files[0]);
+});
+function nextQuestion(){
+  if (!deck.length) deck = questions.map((_, i) => i).sort(() => Math.random() - .5);
+  return questions[deck.pop()];
+}
+
+// ---------- Game ----------
+let counts = {blue:0, red:0}, total = 10;
+let stage = 1, phase = 'idle', roller = null, target = null, diceVal = 0, pending = 0, popped = 0, note = '', over = false;
+let timerInterval = null, timeLeft = 20, maxTime = 20;
+
+const NAME = {blue:'Blue team', red:'Red team'}, COL = {blue:'var(--blue)', red:'var(--red)'};
+const opp = t => t === 'blue' ? 'red' : 'blue';
+const cap = t => t === 'blue' ? 'Blue' : 'Red';
+const el = {blue: {box:$('tBlue'), bal:$('bBlue')}, red: {box:$('tRed'), bal:$('bRed')}};
+const eligible = t => stage === 1 || t === opp(roller);
+
+function render(team){
+  const box = el[team].bal; box.innerHTML = '';
+  for (let i = 0; i < total; i++){
+    const b = document.createElement('div');
+    b.className = 'balloon ' + (team === 'blue' ? 'b' : 'r');
+    box.appendChild(b);
+  }
+}
+function updateUI(){
+  ['blue','red'].forEach(t => {
+    el[t].box.classList.toggle('selectable', phase === 'select' && eligible(t));
+    el[t].box.classList.toggle('chosen', phase === 'pop' && target === t);
+  });
+  
+  let m = '';
+  if (phase === 'idle') m = note || (stage === 1 ? 'Roll the dice!' : 'Answered correctly — roll again to pop!');
+  else if (phase === 'select') m = `Rolled ${diceVal}! Click the team box to pop its balloons.`;
+  else if (phase === 'pop') m = `Pop ${pending} ${cap(target)} balloon${pending > 1 ? 's' : ''}!` + (popped === 0 && eligible(opp(target)) ? ' (or click the other team)' : '');
+  $('msg').textContent = m;
+}
+function startGame(){
+  total = parseInt($('n').value) || 10;
+  maxTime = parseInt($('timerSet').value);
+  
+  stats = { roundsPlayed: 0, blueCorrect: 0, blueWrong: 0, redCorrect: 0, redWrong: 0, winner: '' };
+  
+  counts = {blue: total, red: total};
+  stage = 1; phase = 'idle'; roller = target = null; note = ''; over = false; deck = [];
+  $('dice').textContent = '?';$('roll').disabled = false;
+  render('blue'); render('red'); updateUI();
+  $('menu').classList.add('hidden'); $('game').classList.remove('hidden');$('wModal').classList.add('hidden'); $('statsModal').classList.add('hidden');$('qModal').classList.add('hidden');
+}
+function roll(){
+  if (phase !== 'idle' || over) return;
+  phase = 'rolling'; note = ''; $('roll').disabled = true; $('msg').textContent = 'Rolling…';
+  let ticks = 0, val = 1;
+  const iv = setInterval(() => {
+    val = 1 + Math.floor(Math.random() * 6); $('dice').textContent = val; sfx.tick();
+    if (++ticks >= 9){
+      clearInterval(iv); diceVal = val; sfx.land();
+      const d = $('dice'); d.classList.remove('bounce'); void d.offsetWidth; d.classList.add('bounce');
+      phase = 'select'; updateUI();
+    }
+  }, 75);
+}
+function choose(t){
+  target = t; pending = Math.min(diceVal, counts[t]); popped = 0; phase = 'pop'; updateUI();
+}
+
+['blue','red'].forEach(t => el[t].box.addEventListener('click', (e) => {
+  if (phase === 'select' && eligible(t)) {
+    choose(t);
+  } else if (phase === 'pop' && target === t) {
+    const balloon = e.target.closest('.balloon');
+    if (balloon && !balloon.classList.contains('popped')) {
+      popBalloon(t, balloon);
+    }
+  } else if (phase === 'pop' && popped === 0 && t !== target && eligible(t)) {
+    choose(t);
+  }
+}));
+
+function popBalloon(team, b){
+  b.classList.add('popped'); sfx.pop();
+  counts[team]--; pending--; popped++;
+  if (pending <= 0 || counts[team] <= 0){
+    phase = 'wait'; updateUI(); $('msg').textContent = '';
+    setTimeout(() => {
+      if (counts[team] <= 0) return endGame(team);
+      if (stage === 1) showQuestion(team);
+      else { stage = 1; roller = null; note = 'Pair finished!'; phase = 'idle'; $('roll').disabled = false; updateUI(); }
+    }, 600);
+  } else updateUI();
+}
+
+function showQuestion(t){
+  phase = 'question'; updateUI();
+  const item = nextQuestion();
+  target = opp(t); 
+  stats.roundsPlayed++;
+  
+  $('qTeam').textContent = '❓ Question for ' + NAME[t]; $('qTeam').style.color = COL[t];$('qText').textContent = item.q;
+  $('qAns').textContent = item.a || '—'; $('qAns').classList.add('hidden');$('reveal').classList.remove('hidden'); 
+  $('verdict').classList.add('hidden');$('qModal').classList.remove('hidden');
+
+  if (maxTime > 0) {
+    $('timer-container').style.display = 'block';
+    timeLeft = maxTime;
+    updateTimerBar();
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerBar();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        sfx.timeout();
+        verdict(false);
+      }
+    }, 1000);
+  } else {
+    $('timer-container').style.display = 'none';
+  }
+}
+
+function updateTimerBar() {
+  const bar = $('timer-bar');
+  const pct = (timeLeft / maxTime) * 100;
+  bar.style.width = pct + '%';
+  if (pct > 50) bar.style.backgroundColor = 'var(--green)';
+  else if (pct > 20) bar.style.backgroundColor = '#f59e0b';
+  else bar.style.backgroundColor = 'var(--red)';
+}
+
+$('reveal').onclick = () => { 
+  clearInterval(timerInterval);
+  sfx.reveal(); 
+  $('qAns').classList.remove('hidden'); 
+  $('reveal').classList.add('hidden');$('verdict').classList.remove('hidden');
+};
+
+function verdict(correct){
+  clearInterval(timerInterval);
+  $('qModal').classList.add('hidden');
+  const answeringTeam = target === 'blue' ? 'red' : 'blue';
+  
+  if (answeringTeam === 'blue') {
+    if (correct) stats.blueCorrect++; else stats.blueWrong++;
+  } else {
+    if (correct) stats.redCorrect++; else stats.redWrong++;
+  }
+
+  const t = target; 
+  if (correct){ 
+    sfx.correct(); 
+    stage = 2; 
+    roller = opp(t); 
+    note = ''; 
+    diceVal = 0;
+    $('dice').textContent = '?';
+    phase = 'idle'; 
+    $('roll').disabled = false;
+  } else { 
+    sfx.wrong(); 
+    stage = 1; 
+    roller = null; 
+    note = `${NAME[opp(t)]} answered wrong and loses their roll.`; 
+    phase = 'idle'; 
+    $('roll').disabled = false; 
+  }
+  updateUI();
+}
+$('ok').onclick = () => verdict(true);$('ko').onclick = () => verdict(false);
+
+function endGame(loser){
+  over = true; phase = 'over'; updateUI();
+  sfx.splash();
+  const w = opp(loser);
+  stats.winner = NAME[w];
+  
+  setTimeout(() => {
+    sfx.win();
+    $('wText').textContent = '🎉 ' + NAME[w] + ' wins!'; $('wText').style.color = COL[w];$('wModal').classList.remove('hidden');
+  }, 1000);
+}
+
+$('openStats').onclick = () => {
+  const content = $('statsContent');
+  content.innerHTML = `
+    <div>👑 Winner: <span style="color:var(--head);">${stats.winner}</span></div>
+    <div>🔄 Total rounds/questions: ${stats.roundsPlayed}</div>
+    <hr style="border:0; border-top:1px solid var(--line); margin:4px 0;">
+    <div>🔵 Blue Team Correct: <span class="ok">${stats.blueCorrect}</span> | Wrong: <span class="err">${stats.blueWrong}</span></div>
+    <div>🔴 Red Team Correct: <span class="ok">${stats.redCorrect}</span> | Wrong: <span class="err">${stats.redWrong}</span></div>
+  `;
+  $('statsModal').classList.remove('hidden');
+};
+
+$('roll').onclick = roll;
+$('start').onclick = startGame;
+$('again').onclick =$('wAgain').onclick = startGame;
+const toMenu = () => { 
+  $('game').classList.add('hidden');$('wModal').classList.add('hidden'); 
+  $('statsModal').classList.add('hidden');$('qModal').classList.add('hidden'); 
+  closeToasts();
+  $('menu').classList.remove('hidden'); 
+};
+$('toMenu').onclick = toMenu;
+</script>
+</body>
+</html>
