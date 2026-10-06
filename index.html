@@ -264,16 +264,21 @@ textarea:focus{outline:none;border-color:var(--blue)}
 <div id="toastRules" class="toast-overlay">
   <div class="toast-content">
     <div class="toast-header">
-      <h3>📜 Game Rules</h3>
+      <h3>📜 How to Play</h3>
       <button class="close-toast" onclick="closeToasts()">✕</button>
     </div>
-    <ul style="margin: 0; padding-left: 20px; line-height: 1.6; font-weight: 700; color: var(--text); font-family:'Nunito',sans-serif;">
-      <li><b>Turn & Dice:</b> Teams take turns clicking the dice button to see how many opponent balloons they can pop.</li>
-      <li><b>English Question:</b> After rolling, a question appears. The team must answer it correctly before the timer runs out (if enabled).</li>
-      <li><b>Teacher Verification:</b> The teacher clicks <i>Reveal answer</i> and then <i>Correct</i> (the team rolls the dice again to pop opponent balloons) or <i>Incorrect</i> (ends the turn immediately).</li>
-      <li><b>Winning:</b> The first team to pop all opponent balloons wins the game!</li>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.6; font-weight: 700; color: var(--text); font-family:'Nunito',sans-serif; list-style-type: none; padding-left: 0; display: flex; flex-direction: column; gap: 10px;">
+      <li>✊✌️🖐️ <b>1. Rock-Paper-Scissors:</b> Two players (one from each team) play RPS to decide who starts.</li>
+      <li>🎲 <b>2. Roll the Dice:</b> The winner of RPS rolls the dice to see how many opponent balloons they can pop!</li>
+      <li>💥 <b>3. Pop Balloons:</b> Click on the opponent's balloons to pop them according to the rolled number.</li>
+      <li>❓ <b>4. English Question:</b> The other team now gets a chance! A question pops up for them to answer.</li>
+      <li>👨‍🏫 <b>5. Teacher's Verdict:</b>
+        <br>• ✔️ <b>Correct:</b> That team gets to roll the dice and pop balloons too!
+        <br>• ❌ <b>Wrong:</b> Turn lost! Call up two new players for a new round of RPS.
+      </li>
+      <li>🏆 <b>6. Winning:</b> The first team to pop all opponent balloons wins the game!</li>
     </ul>
-    <button class="btn blue" onclick="closeToasts()" style="width:100%; margin-top: 5px;">Got it!</button>
+    <button class="btn blue" onclick="closeToasts()" style="width:100%; margin-top: 10px;">Got it! 🚀</button>
   </div>
 </div>
 
