@@ -150,23 +150,27 @@ textarea:focus{outline:none;border-color:var(--blue)}
 .balloon:hover{transform:scale(1.15)}
 .balloon.popped{transform:scale(1.7);opacity:0;pointer-events:none}
 
-/* Modals & Toasts */
+/* Modals & Toasts - responzivní se scrollováním */
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
-.box{background:#fff;border-radius:28px;padding:28px;max-width:600px;width:100%;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center}
-.q{font-size:2rem;font-weight:900;color:var(--head)}
-.a{font-size:1.7rem;font-weight:800;color:var(--green-s);padding:14px;border-radius:16px;border:2px dashed var(--green);width:100%}
+.box{
+    background:#fff;border-radius:28px;padding:28px;max-width:600px;width:100%;
+    max-height:85vh;overflow-y:auto;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;
+}
+.q{font-size:1.8rem;font-weight:900;color:var(--head)}
+.a{font-size:1.5rem;font-weight:800;color:var(--green-s);padding:14px;border-radius:16px;border:2px dashed var(--green);width:100%}
 .tag{font-weight:900;text-transform:uppercase;letter-spacing:1px}
 
-/* Toast styling */
+/* Toast styling - podpora scrollování na mobilech */
 .toast-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.4);
     display: flex; align-items: center; justify-content: center;
-    padding: 20px; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    padding: 16px; z-index: 50; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
 }
 .toast-overlay.active { opacity: 1; pointer-events: auto; }
 .toast-content {
     background: #fff; width: 100%; max-width: 550px;
-    border-radius: 28px; padding: 28px;
+    max-height: 85vh; overflow-y: auto;
+    border-radius: 28px; padding: 24px;
     transform: scale(0.9) translateY(20px); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     display: flex; flex-direction: column; gap: 16px; text-align: left;
@@ -184,15 +188,21 @@ textarea:focus{outline:none;border-color:var(--blue)}
 }
 .preset-item:hover { border-color: var(--blue); background: #f7f9fa; }
 
-/* Malý notifikační toast */
+/* Malý notifikační toast - plně se schová (žádné přetékání na mobilu) */
 #notification-toast {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(40px);
+    opacity: 0; visibility: hidden; pointer-events: none;
     background: var(--green); color: white; padding: 12px 24px; border-radius: 16px;
     font-weight: 800; font-size: 1.1rem; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    z-index: 100; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease;
-    pointer-events: none;
+    z-index: 100; transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s, background 0.2s ease;
+    text-align: center; max-width: 90vw;
 }
-#notification-toast.show { transform: translateX(-50%) translateY(0); }
+#notification-toast.show { 
+    transform: translateX(-50%) translateY(0); 
+    opacity: 1; 
+    visibility: visible; 
+}
 #notification-toast.err { background: var(--red); }
 </style>
 </head>
@@ -272,7 +282,7 @@ textarea:focus{outline:none;border-color:var(--blue)}
       <li>🎲 <b>2. Roll the Dice:</b> The winner of RPS rolls the dice to see how many opponent balloons they can pop!</li>
       <li>💥 <b>3. Pop Balloons:</b> Click on the opponent's balloons to pop them according to the rolled number.</li>
       <li>❓ <b>4. English Question:</b> The other team now gets a chance! A question pops up for them to answer.</li>
-      <li>👨‍🏫 <b>5. Teacher's Verdict:</b>
+      <li>👨‍‍🏫 <b>5. Teacher's Verdict:</b>
         <br>• ✔️ <b>Correct:</b> That team gets to roll the dice and pop balloons too!
         <br>• ❌ <b>Wrong:</b> Turn lost! Call up two new players for a new round of RPS.
       </li>
@@ -291,7 +301,7 @@ textarea:focus{outline:none;border-color:var(--blue)}
     </div>
     <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
       <div class="preset-item" onclick="loadPreset('comparatives')">
-        <span>Comparatives, Superlatives & As...As</span>
+        <span>Comparatives, Superlatives &amp; As...As</span>
         <span style="font-size:0.85rem; color:#777;">40 questions</span>
       </div>
       <div class="preset-item" onclick="loadPreset('irregular')">
@@ -456,11 +466,13 @@ Past tense of 'drive'?,drove
 Past tense of 'sleep'?,slept`
 };
 
+let notificationTimeout = null;
 function showNotification(text, type = 'ok') {
   const nt = $('notification-toast');
   nt.textContent = text;
   nt.className = type === 'err' ? 'err show' : 'show';
-  setTimeout(() => {
+  clearTimeout(notificationTimeout);
+  notificationTimeout = setTimeout(() => {
     nt.classList.remove('show');
   }, 2500);
 }
@@ -654,6 +666,7 @@ function readFile(f){
   r.onload = () => { 
     $('qs').value = r.result.replace(/^\uFEFF/, ''); 
     loadQuestions(); 
+    closeToasts(); // Toast pro CSV se ihned zavře po úspěšném nahrání
     showNotification('CSV successfully loaded!', 'ok');
   };
   r.readAsText(f, 'UTF-8');
@@ -871,7 +884,6 @@ const toMenu = () => {
   $('menu').classList.remove('hidden'); 
 };
 
-// Navázání na obě tlačítka pro návrat do menu
 $('toMenu').onclick = toMenu;
 $('wMenu').onclick = toMenu;
 </script>
