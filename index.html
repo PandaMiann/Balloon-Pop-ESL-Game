@@ -267,7 +267,7 @@ textarea:focus{outline:none;border-color:var(--blue)}
       <h3>📜 How to Play</h3>
       <button class="close-toast" onclick="closeToasts()">✕</button>
     </div>
-    <ul style="margin: 0; padding-left: 20px; line-height: 1.6; font-weight: 700; color: var(--text); font-family:'Nunito',sans-serif; list-style-type: none; padding-left: 0; display: flex; flex-direction: column; gap: 10px;">
+    <ul style="margin: 0; line-height: 1.6; font-weight: 700; color: var(--text); font-family:'Nunito',sans-serif; list-style-type: none; padding-left: 0; display: flex; flex-direction: column; gap: 10px;">
       <li>✊✌️🖐️ <b>1. Rock-Paper-Scissors:</b> Two players (one from each team) play RPS to decide who starts.</li>
       <li>🎲 <b>2. Roll the Dice:</b> The winner of RPS rolls the dice to see how many opponent balloons they can pop!</li>
       <li>💥 <b>3. Pop Balloons:</b> Click on the opponent's balloons to pop them according to the rolled number.</li>
@@ -291,7 +291,7 @@ textarea:focus{outline:none;border-color:var(--blue)}
     </div>
     <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
       <div class="preset-item" onclick="loadPreset('comparatives')">
-        <span>Comparatives & Superlatives</span>
+        <span>Comparatives, Superlatives & As...As</span>
         <span style="font-size:0.85rem; color:#777;">40 questions</span>
       </div>
       <div class="preset-item" onclick="loadPreset('irregular')">
@@ -323,7 +323,7 @@ textarea:focus{outline:none;border-color:var(--blue)}
 <div id="toastType" class="toast-overlay">
   <div class="toast-content">
     <div class="toast-header">
-      <h3>✏️️ Type Questions</h3>
+      <h3>✏️ Type Questions</h3>
       <button class="close-toast" onclick="closeToasts()">✕</button>
     </div>
     <div class="tb">
@@ -394,43 +394,43 @@ let stats = {
 
 const presetPacks = {
   comparatives: `My car is ___(fast) than yours.,faster
-This is the ___(bad) film I have ever seen.,worst
-He is as tall ___(prep) his brother.,as
-Chemistry is ___(difficult) than physics.,more difficult
+Correct the mistake: This is the baddest film ever.,worst
+Choose (than / as / like): He is as tall ___ his brother.,as
+Choose: Physics is (not as easy as / not easier than) chemistry.,not as easy as
 Mount Everest is the ___(high) mountain in the world.,highest
-She speaks English ___(fluent) than me.,more fluently
-Today is not as hot ___(prep) yesterday.,as
+Choose: She speaks English (more fluent / more fluently) than me.,more fluently
+Choose (than / as / like): Today is not as hot ___ yesterday.,as
 Who is the ___(smart) student in the class?,smartest
-My house is ___(big) than yours.,bigger
-This exercise is ___(easy) than the previous one.,easier
-English is ___(easy) language to learn, isn't it?,the easiest
-He runs ___(fast) of all runners.,the fastest
-Gold is ___(expensive) than silver.,more expensive
-Physics is ___(boring) subject for me.,the most boring
-Cats are not as noisy ___(prep) dogs.,as
-She is ___(good) singer in our choir.,the best
-Winter is ___(cold) season of the year.,the coldest
-Your phone is ___(modern) than mine.,more modern
-Travelling by train is ___(comfortable) than by bus.,more comfortable
-He is ___(short) boy in our team.,the shortest
+Choose: My phone is (not as expensive as / not as expensiver as) yours.,not as expensive as
+What is the comparative form of 'far' (distance)?,farther / further
+English is the ___(easy) language to learn, isn't it?,easiest
+Correct the mistake: He runs more fast than Peter.,faster
+Choose: Gold is (more expensive / expensiver) than silver.,more expensive
+Fill in the missing word: A cat is not ___ big as a tiger.,as
+Choose (than / as / like): Cats are not as noisy ___ dogs.,as
+Correct the mistake: She is the most good singer in our choir.,the best
+Winter is the ___(cold) season of the year.,coldest
+Fill in the missing word: Tom is as old ___ Ben.,as
+Choose: Travelling by train is (comfortabler / more comfortable) than by bus.,more comfortable
+Who is the ___(short) boy in your class?,shortest
 A plane is ___(fast) than a train.,faster
-Who is the ___(rich) person in the world?,richest
-This test was ___(difficult) than the last one.,more difficult
-Lions are ___(dangerous) than domestic cats.,more dangerous
-She is ___(happy) person I know.,the happiest
-My laptop is ___(new) than yours.,newer
-He is ___(good) at math than me.,better
-This box is as ___(heavy) as the other one.,heavy
-July is usually ___(hot) month of the year.,the hottest
-Travelling by plane is ___(safe) than driving a car.,safer
-Your room is not as ___(clean) as mine.,clean
-He bought ___(expensive) watch in the shop.,the most expensive
-Spanish is ___(easy) to learn than Chinese.,easier
-She is ___(tall) than her older brother.,taller
-This is ___(bad) restaurant in the town.,the worst
+Correct the mistake: Who is the most rich person on Earth?,richest
+Correct the mistake: He isn't as taller as his brother.,as tall as
+Choose: Which is correct? (more dangerous / dangerouser),more dangerous
+She is the ___(happy) person I know.,happiest
+Choose: An apple is (not as sweet as / not sweet than) chocolate.,not as sweet as
+What is the comparative form of 'good'?,better
+Choose: This box is (as heavy as / as heavier as) that one.,as heavy as
+July is usually the ___(hot) month of the summer.,hottest
+Choose (as / than / so): A bike is not as fast ___ a car.,as
+Correct the mistake: My phone is as better as yours.,as good as
+Choose: He bought the (more expensive / most expensive) watch.,most expensive
+Correct the mistake: Spanish is more easy than Chinese.,easier
+True or False: In 'as big as', we use the basic form of the adjective.,True
+What is the superlative form of 'bad'?,the worst
 Iron is ___(heavy) than wood.,heavier
-Science fiction is ___(interesting) than history for me.,more interesting
-He drives ___(careful) than his friend.,more carefully
+Choose: Sci-fi is (more interesting / most interesting) than history.,more interesting
+Fill in the missing word: Coffee is not ___ sweet as hot chocolate.,as
 Who is ___(old), your mother or your father?,older
 Mount Everest is ___(high) than Mont Blanc.,higher`,
 
@@ -863,13 +863,17 @@ $('openStats').onclick = () => {
 $('roll').onclick = roll;
 $('start').onclick = startGame;
 $('again').onclick =$('wAgain').onclick = startGame;
+
 const toMenu = () => { 
   $('game').classList.add('hidden');$('wModal').classList.add('hidden'); 
   $('statsModal').classList.add('hidden');$('qModal').classList.add('hidden'); 
   closeToasts();
   $('menu').classList.remove('hidden'); 
 };
+
+// Navázání na obě tlačítka pro návrat do menu
 $('toMenu').onclick = toMenu;
+$('wMenu').onclick = toMenu;
 </script>
 </body>
 </html>
